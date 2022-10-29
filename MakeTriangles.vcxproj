@@ -22,6 +22,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\GLAD\src\glad.c" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -30,6 +31,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.h" />
+    <ClInclude Include="stb_image.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Commented code.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

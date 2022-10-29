@@ -13,27 +13,47 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Source Files\lib">
+      <UniqueIdentifier>{ad150995-4c51-46e3-abf9-e5249b80259c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\notes">
+      <UniqueIdentifier>{d93a930f-326f-4c64-8adb-d6d7db2f0c5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\src">
+      <UniqueIdentifier>{56b30177-5e4e-4f2c-b8af-46cfa4130f51}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\GLAD\src\glad.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp">
+      <Filter>Source Files\src</Filter>
+    </ClCompile>
+    <ClCompile Include="stb_image.cpp">
+      <Filter>Source Files\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaderv.vs">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="shaderf.fsc">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\src</Filter>
+    </None>
+    <None Include="shaderv.vs">
+      <Filter>Source Files\src</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shader.h">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\lib</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Source Files\src</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Commented code.txt">
+      <Filter>Source Files\notes</Filter>
+    </Text>
   </ItemGroup>
 </Project>
