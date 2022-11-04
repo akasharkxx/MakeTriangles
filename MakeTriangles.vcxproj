@@ -89,7 +89,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\Projects\From Scratch\OGl\GLAD\include;E:\Projects\From Scratch\OGl\GLFW\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\Projects\From Scratch\OGl\GLM\glm;E:\Projects\From Scratch\OGl\GLAD\include;E:\Projects\From Scratch\OGl\GLFW\include;$(IncludePath)</IncludePath>
     <LibraryPath>E:\Projects\From Scratch\OGl\GLFW\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
