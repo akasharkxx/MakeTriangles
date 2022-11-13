@@ -50,6 +50,9 @@
     <ClInclude Include="stb_image.h">
       <Filter>Source Files\src</Filter>
     </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Source Files\lib</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Commented code.txt">
