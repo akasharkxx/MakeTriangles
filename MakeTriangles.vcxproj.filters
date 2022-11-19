@@ -36,10 +36,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="shaderf.fsc">
+    <None Include="light_color.fsc">
       <Filter>Source Files\src</Filter>
     </None>
-    <None Include="shaderv.vs">
+    <None Include="light_color.vs">
+      <Filter>Source Files\src</Filter>
+    </None>
+    <None Include="light_object.fsc">
+      <Filter>Source Files\src</Filter>
+    </None>
+    <None Include="light_object.vs">
       <Filter>Source Files\src</Filter>
     </None>
   </ItemGroup>
@@ -56,6 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="Commented code.txt">
+      <Filter>Source Files\notes</Filter>
+    </Text>
+    <Text Include="Old Code.txt">
       <Filter>Source Files\notes</Filter>
     </Text>
   </ItemGroup>
