@@ -22,6 +22,9 @@
     <Filter Include="Source Files\src">
       <UniqueIdentifier>{56b30177-5e4e-4f2c-b8af-46cfa4130f51}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\shaders">
+      <UniqueIdentifier>{f122599f-e960-48aa-afac-bb8c046e7d92}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\GLAD\src\glad.c">
@@ -36,17 +39,23 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="gouraud.fsc">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="gouraud.vs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
     <None Include="light_color.fsc">
-      <Filter>Source Files\src</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="light_color.vs">
-      <Filter>Source Files\src</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="light_object.fsc">
-      <Filter>Source Files\src</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
     <None Include="light_object.vs">
-      <Filter>Source Files\src</Filter>
+      <Filter>Source Files\shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
