@@ -21,22 +21,41 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\GLAD\src\glad.c" />
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="stb_image.cpp" />
+    <ClCompile Include="src\includes\imgui\imgui.cpp" />
+    <ClCompile Include="src\includes\imgui\imgui_demo.cpp" />
+    <ClCompile Include="src\includes\imgui\imgui_draw.cpp" />
+    <ClCompile Include="src\includes\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="src\includes\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="src\includes\imgui\imgui_tables.cpp" />
+    <ClCompile Include="src\includes\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\includes\imgui\main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="src\includes\stb_image.cpp" />
+    <ClCompile Include="src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="gouraud.fsc" />
-    <None Include="gouraud.vs" />
-    <None Include="light_object.fsc" />
-    <None Include="light_object.vs" />
     <None Include="packages.config" />
-    <None Include="light_color.fsc" />
-    <None Include="light_color.vs" />
+    <None Include="src\shaders\gouraud.fsc" />
+    <None Include="src\shaders\gouraud.vs" />
+    <None Include="src\shaders\light_color.fsc" />
+    <None Include="src\shaders\light_color.vs" />
+    <None Include="src\shaders\light_object.fsc" />
+    <None Include="src\shaders\light_object.vs" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="camera.h" />
-    <ClInclude Include="shader.h" />
-    <ClInclude Include="stb_image.h" />
+    <ClInclude Include="src\includes\camera.h" />
+    <ClInclude Include="src\includes\imgui\imconfig.h" />
+    <ClInclude Include="src\includes\imgui\imgui.h" />
+    <ClInclude Include="src\includes\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="src\includes\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="src\includes\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="src\includes\imgui\imgui_internal.h" />
+    <ClInclude Include="src\includes\imgui\imstb_rectpack.h" />
+    <ClInclude Include="src\includes\imgui\imstb_textedit.h" />
+    <ClInclude Include="src\includes\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\includes\shader.h" />
+    <ClInclude Include="src\includes\stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Commented code.txt" />
