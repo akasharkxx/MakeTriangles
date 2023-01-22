@@ -12,7 +12,9 @@ enum CameraMovement
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UP,
+	DOWN
 };
 
 // Default camera values
@@ -84,8 +86,16 @@ public:
 		{
 			Position += Right * velocity;
 		}
+		if (direction == UP)
+		{
+			Position += WorldUp * velocity;
+		}
+		if (direction == DOWN)
+		{
+			Position -= WorldUp * velocity;
+		}
 
-		Position.y = 0.0f;
+		//Position.y = 0.0f;
 	}
 
 	void ProcessMouseMovement(float xOffset, float yOffset, GLboolean constrainPitch = true)

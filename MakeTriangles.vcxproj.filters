@@ -84,6 +84,34 @@
     <None Include="src\shaders\light_object.vs">
       <Filter>Source Files\shaders</Filter>
     </None>
+    <None Include="src\shaders\light_directional.fsc">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\light_directional.vs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\light_spot.fsc">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\light_spot.vs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\light_multiple.fsc">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\light_multiple.vs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\model_loading.fsc">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\model_loading.vs">
+      <Filter>Source Files\shaders</Filter>
+    </None>
+    <None Include="src\shaders\basic.vs" />
+    <None Include="src\shaders\basic.fsc" />
+    <None Include="src\shaders\basic2.fsc" />
+    <None Include="src\shaders\basic2.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\includes\stb_image.h">
@@ -121,6 +149,12 @@
     </ClInclude>
     <ClInclude Include="src\includes\imgui\imgui_impl_opengl3_loader.h">
       <Filter>Source Files\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\mesh.h">
+      <Filter>Source Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\model.h">
+      <Filter>Source Files\lib</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -36,12 +36,24 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="src\shaders\basic.fsc" />
+    <None Include="src\shaders\basic.vs" />
+    <None Include="src\shaders\basic2.fsc" />
+    <None Include="src\shaders\basic2.vs" />
     <None Include="src\shaders\gouraud.fsc" />
     <None Include="src\shaders\gouraud.vs" />
     <None Include="src\shaders\light_color.fsc" />
     <None Include="src\shaders\light_color.vs" />
+    <None Include="src\shaders\light_directional.fsc" />
+    <None Include="src\shaders\light_directional.vs" />
+    <None Include="src\shaders\light_multiple.fsc" />
+    <None Include="src\shaders\light_multiple.vs" />
     <None Include="src\shaders\light_object.fsc" />
     <None Include="src\shaders\light_object.vs" />
+    <None Include="src\shaders\light_spot.fsc" />
+    <None Include="src\shaders\light_spot.vs" />
+    <None Include="src\shaders\model_loading.fsc" />
+    <None Include="src\shaders\model_loading.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\includes\camera.h" />
@@ -54,6 +66,8 @@
     <ClInclude Include="src\includes\imgui\imstb_rectpack.h" />
     <ClInclude Include="src\includes\imgui\imstb_textedit.h" />
     <ClInclude Include="src\includes\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\includes\mesh.h" />
+    <ClInclude Include="src\includes\model.h" />
     <ClInclude Include="src\includes\shader.h" />
     <ClInclude Include="src\includes\stb_image.h" />
   </ItemGroup>
@@ -114,8 +128,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>E:\Projects\From Scratch\OGl\GLM\glm;E:\Projects\From Scratch\OGl\GLAD\include;E:\Projects\From Scratch\OGl\GLFW\include;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\Projects\From Scratch\OGl\GLFW\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\Projects\From Scratch\OGl\Assimp\include;E:\Projects\From Scratch\OGl\GLM\glm;E:\Projects\From Scratch\OGl\GLAD\include;E:\Projects\From Scratch\OGl\GLFW\include;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\Projects\From Scratch\OGl\Assimp\lib;E:\Projects\From Scratch\OGl\GLFW\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -155,7 +169,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>glfw3.lib;opengl32.lib;kernel32.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;kernel32.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
