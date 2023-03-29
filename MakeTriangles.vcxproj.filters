@@ -112,6 +112,10 @@
     <None Include="src\shaders\basic.fsc" />
     <None Include="src\shaders\basic2.fsc" />
     <None Include="src\shaders\basic2.vs" />
+    <None Include="src\shaders\BufferShader.vs" />
+    <None Include="src\shaders\BufferShader.fsc" />
+    <None Include="src\shaders\skybox.vs" />
+    <None Include="src\shaders\skybox.fsc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\includes\stb_image.h">
@@ -155,6 +159,9 @@
     </ClInclude>
     <ClInclude Include="src\includes\model.h">
       <Filter>Source Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\includes\LogHelper.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

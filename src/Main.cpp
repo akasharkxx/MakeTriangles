@@ -15,6 +15,7 @@
 #include <gtc/type_ptr.hpp>
 #include "includes/imgui/imgui_impl_opengl3.h"
 #include "includes/model.h"
+#include "includes/LogHelper.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow* window);
@@ -22,6 +23,11 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void mousescroll_callback(GLFWwindow* window, double xOffset, double yOffset);
 void mousebutton_callback(GLFWwindow* window, int button, int action, int mods);
 unsigned int loadTexture(char const* path, bool flipVertically = true);
+unsigned int loadCubemap(const std::vector<std::string>& faces);
+
+void CreateFrameBuffer(unsigned int& fbo);
+void CreateFrameTexture(unsigned int& texture, bool needDepthAndStencil);
+void CreateRenderBuffer(unsigned int& rbo);
 
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -44,6 +50,9 @@ bool enableMouse = false;
 glm::vec3 lightPos(2.0f, 0.0f, 0.0f);
 
 const char* glsl_version = "#version 130";
+
+const GLenum skyboxTexture = GL_TEXTURE11;
+const unsigned int skyboxIdx = 11;
 
 struct MeshData
 {
@@ -96,12 +105,13 @@ int main()
         return -1;
     }
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
+    GLCall(glEnable(GL_DEPTH_TEST));
+    GLCall(glDepthFunc(GL_LESS));
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    GLCall(glEnable(GL_PROGRAM_POINT_SIZE));
     //glEnable(GL_STENCIL_TEST);
 
     float cubeVertices[] = {
@@ -168,6 +178,61 @@ int main()
         1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
         1.0f,  0.5f,  0.0f,  1.0f,  0.0f
     };
+    float quadVertices[] = { // vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+        // positions   // texCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+         1.0f, -1.0f,  1.0f, 0.0f,
+         1.0f,  1.0f,  1.0f, 1.0f
+    };
+
+    float skyboxVertices[] = {
+        // positions          
+        -1.0f,  1.0f, -1.0f,
+        -1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f, -1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+
+        -1.0f, -1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f,
+        -1.0f, -1.0f,  1.0f,
+
+        -1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f, -1.0f,
+         1.0f,  1.0f,  1.0f,
+         1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f,  1.0f,
+        -1.0f,  1.0f, -1.0f,
+
+        -1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f, -1.0f,
+         1.0f, -1.0f, -1.0f,
+        -1.0f, -1.0f,  1.0f,
+         1.0f, -1.0f,  1.0f
+    };
 
     unsigned int cubeVAO, cubeVBO;
     glGenVertexArrays(1, &cubeVAO);
@@ -205,16 +270,84 @@ int main()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glBindVertexArray(0);
 
+    unsigned int screenQuadVAO, screenQuadVBO;
+    GLCall(glGenVertexArrays(1, &screenQuadVAO));
+    GLCall(glGenBuffers(1, &screenQuadVBO));
+    GLCall(glBindVertexArray(screenQuadVAO));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBO));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW));
+    GLCall(glEnableVertexAttribArray(0));
+    GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0));
+    GLCall(glEnableVertexAttribArray(1));
+    GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float))));
+    GLCall(glBindVertexArray(0));
+
+    unsigned int skyboxVAO, skyboxVBO;
+    GLCall(glGenVertexArrays(1, &skyboxVAO));
+    GLCall(glGenBuffers(1, &skyboxVBO));
+    GLCall(glBindVertexArray(skyboxVAO));
+    GLCall(glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO));
+    GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW));
+    GLCall(glEnableVertexAttribArray(0));
+    GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0));
+    GLCall(glBindVertexArray(0));
+
     Shader shader("src/shaders/basic.vs", "src/shaders/basic.fsc");
     Shader outlineShader("src/shaders/basic2.vs", "src/shaders/basic2.fsc");
     Shader modelShader("src/shaders/model_loading.vs", "src/shaders/model_loading.fsc");
+    Shader screenShader("src/shaders/BufferShader.vs", "src/shaders/BufferShader.fsc");
+    Shader skyboxShader("src/shaders/skybox.vs", "src/shaders/skybox.fsc");
 
     unsigned int cubeTexture = loadTexture("resources/textures/container2.png");
     unsigned int floorTexture = loadTexture("resources/textures/Ground.png");
     unsigned int transparentTexture = loadTexture("resources/textures/window.png");
 
+    std::vector<std::string> faces
+    {
+        "resources/textures/right.jpg",
+        "resources/textures/left.jpg",
+        "resources/textures/top.jpg",
+        "resources/textures/bottom.jpg",
+        "resources/textures/front.jpg",
+        "resources/textures/back.jpg"
+    };
+
+    unsigned int cubeMapTexture = loadCubemap(faces);
+
+    modelShader.use();
+    modelShader.setInt("skybox", skyboxIdx);
+
+    screenShader.use();
+    screenShader.setInt("screenTexture", 0);
+
     Model boxModel("resources/models/Boxes.obj");
     Model windowModel("resources/models/Window.obj");
+
+    unsigned int fbo, textureColorBuffer, rbo;
+    glGenFramebuffers(1, &fbo);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+
+    glGenTextures(1, &textureColorBuffer);
+    glBindTexture(GL_TEXTURE_2D, textureColorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorBuffer, 0);
+
+    glGenRenderbuffers(1, &rbo);
+    glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, SCR_WIDTH, SCR_HEIGHT); // use a single renderbuffer object for both a depth AND stencil buffer.
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    {
+        LOG("ERROR::FRAMEBUFFER:: Framebuffer is not complete!");
+    }
+    else 
+    {
+        LOG("FRAMEBUFFER::Complete!");
+    }
+    GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
     std::vector<glm::vec3> windows;
     windows.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
@@ -232,11 +365,7 @@ int main()
         yaw = -90.0f;
 
         processInput(window);
-
-        /*glStencilOpSeparate(GL_BACK, GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_KEEP, GL_KEEP);*/
-        /*glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);*/
-
+            
         std::map<float, glm::vec3> sorted;
         for (unsigned int i = 0; i < windows.size(); i++)
         {
@@ -244,14 +373,18 @@ int main()
             sorted[distance] = windows[i];
         }
 
+        glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+        glEnable(GL_DEPTH_TEST); // enable depth testing (is disabled for rendering screen-space quad)
+
+        // make sure we clear the framebuffer's content
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-        shader.use();
 
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.GetViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+
+        shader.use();
         shader.setMat4("view", view);
         shader.setMat4("projection", projection);
 
@@ -276,12 +409,14 @@ int main()
         modelShader.use();
         modelShader.setMat4("view", view);
         modelShader.setMat4("projection", projection);
-        
+        modelShader.setVec3("cameraPos", camera.Position);
+
         model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
         model = glm::scale(model, glm::vec3(modelScale));
 
         modelShader.setMat4("model", model);
+
         boxModel.Draw(modelShader);
 
         model = glm::mat4(1.0f);
@@ -291,19 +426,25 @@ int main()
         modelShader.setMat4("model", model);
         boxModel.Draw(modelShader);
 
-        /*unsigned int cubeIndices = 36;
-        meshData.VAO = &cubeVAO;
-        meshData.texture = &cubeTexture;
-        meshData.numberOfIndexToDraw = cubeIndices;
+        GLCall(glDepthFunc(GL_LEQUAL));
+        //GLCall(glDepthMask(GL_FALSE));
+        glm::mat4 skyboxView = glm::mat4(glm::mat3(view));
 
-        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-        meshData.model = model;
-        DrawMesh(meshData);
-        
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-        meshData.model = model;
-        DrawMesh(meshData);*/
+        skyboxShader.use();
+        skyboxShader.setMat4("view", skyboxView);
+        skyboxShader.setMat4("projection", projection);
+
+        GLCall(glBindVertexArray(skyboxVAO));
+        GLCall(glActiveTexture(skyboxTexture));
+        GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture));
+        skyboxShader.setInt("skybox", skyboxIdx);
+        GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+        GLCall(glBindVertexArray(0));
+
+        //GLCall(glDepthMask(GL_TRUE));
+        GLCall(glDepthFunc(GL_LESS));
+
+
         glDisable(GL_CULL_FACE);
         shader.use();
         // vegetation
@@ -319,41 +460,29 @@ int main()
             DrawMesh(meshData);
         }
 
-        // 2nd pass outline
-        /*glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-        glStencilMask(0x00);
+        glBindVertexArray(0);
+
         glDisable(GL_DEPTH_TEST);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // set clear color to white (not really necessary actually, since we won't be able to see behind the quad anyways)
+        glClear(GL_COLOR_BUFFER_BIT);
 
-        outlineShader.use();
-
-        outlineShader.setMat4("view", view);
-        outlineShader.setMat4("projection", projection);
-        float scale = 1.1f;
-        model = glm::mat4(1.0f);
-        MeshData outlineMeshData{ &cubeVAO, &floorTexture, outlineShader, model, cubeIndices };
+        screenShader.use(); 
+        glBindVertexArray(screenQuadVAO);
+        glBindTexture(GL_TEXTURE_2D, textureColorBuffer);	// use the color attachment texture as the texture of the quad plane
+        glDrawArrays(GL_TRIANGLES, 0, 6);
         
-        model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-        model = glm::scale(model, glm::vec3(scale));
-        outlineMeshData.model = model;
-        DrawMesh(outlineMeshData);
-        
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-        model = glm::scale(model, glm::vec3(scale));
-        outlineMeshData.model = model;
-        DrawMesh(outlineMeshData);
-        
-        glStencilMask(0xFF);
-        glStencilFunc(GL_ALWAYS, 1, 0xFF);
-        glEnable(GL_DEPTH_TEST);*/
         
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
 
-    /*ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();*/
+    glDeleteVertexArrays(1, &cubeVAO);
+    glDeleteVertexArrays(1, &planeVAO);
+    glDeleteVertexArrays(1, &screenQuadVAO);
+    glDeleteBuffers(1, &cubeVBO);
+    glDeleteBuffers(1, &planeVBO);
+    glDeleteBuffers(1, &screenQuadVBO);
 
     glfwTerminate();
     return 0;
@@ -503,4 +632,99 @@ unsigned int loadTexture(char const* path, bool flipVertically)
     stbi_image_free(data);
 
     return texture;
+}
+
+void GLClearError()
+{
+    while (glGetError() != GL_NO_ERROR);
+}
+
+bool GLLogCall(const char* function, const char* file, int line)
+{
+    while (GLenum error = glGetError())
+    {
+        std::cout << "[OpenGL Error] (" << error << "): " << function << " "
+            << file << ": " << line << std::endl;
+
+        return false;
+    }
+
+    return true;
+}
+
+
+void CreateFrameBuffer(unsigned int& fbo)
+{
+    GLCall(glGenFramebuffers(1, &fbo));
+    GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
+}
+
+void CreateFrameTexture(unsigned int& texture, bool needDepthAndStencil)
+{
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    // Creating a texture attachment
+    GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
+
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+
+    GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0));
+
+    if (needDepthAndStencil) 
+    {
+        GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, 800, 600, 0,
+            GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL));
+        GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, texture, 0));
+    }
+    
+    //GLCall(glBindTexture(GL_TEXTURE_2D, 0));
+}
+void CreateRenderBuffer(unsigned int& rbo) 
+{
+    GLCall(glGenRenderbuffers(1, &rbo));
+    GLCall(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
+
+    GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600));
+    GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo));
+
+    //GLCall(glBindRenderbuffer(GL_RENDERBUFFER, 0));
+}
+
+unsigned int loadCubemap(const std::vector<std::string>& faces)
+{
+    unsigned int textureId;
+    GLCall(glActiveTexture(skyboxTexture));
+    GLCall(glGenTextures(1, &textureId));
+    GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, textureId));
+    stbi_set_flip_vertically_on_load(false);
+    int width, height, nrChannels;
+
+    for (unsigned int i = 0; i < faces.size(); i++)
+    {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
+
+        if (data)
+        {
+            GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB,
+                GL_UNSIGNED_BYTE, data));
+        }
+        else 
+        {
+            std::cout << "Error Loading cubemap at path : " << faces[i].c_str() << std::endl;
+        }
+        stbi_image_free(data);
+    }
+
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE));
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE));
+    GLCall(glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE));
+
+    GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
+
+    GLCall(glActiveTexture(GL_TEXTURE0));
+    return textureId;
 }

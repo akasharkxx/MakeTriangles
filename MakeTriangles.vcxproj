@@ -40,6 +40,8 @@
     <None Include="src\shaders\basic.vs" />
     <None Include="src\shaders\basic2.fsc" />
     <None Include="src\shaders\basic2.vs" />
+    <None Include="src\shaders\BufferShader.fsc" />
+    <None Include="src\shaders\BufferShader.vs" />
     <None Include="src\shaders\gouraud.fsc" />
     <None Include="src\shaders\gouraud.vs" />
     <None Include="src\shaders\light_color.fsc" />
@@ -54,6 +56,8 @@
     <None Include="src\shaders\light_spot.vs" />
     <None Include="src\shaders\model_loading.fsc" />
     <None Include="src\shaders\model_loading.vs" />
+    <None Include="src\shaders\skybox.fsc" />
+    <None Include="src\shaders\skybox.vs" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\includes\camera.h" />
@@ -66,6 +70,7 @@
     <ClInclude Include="src\includes\imgui\imstb_rectpack.h" />
     <ClInclude Include="src\includes\imgui\imstb_textedit.h" />
     <ClInclude Include="src\includes\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\includes\LogHelper.h" />
     <ClInclude Include="src\includes\mesh.h" />
     <ClInclude Include="src\includes\model.h" />
     <ClInclude Include="src\includes\shader.h" />
